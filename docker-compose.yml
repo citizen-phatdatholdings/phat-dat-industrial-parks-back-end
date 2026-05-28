@@ -1,8 +1,28 @@
+volumes:
+  postgres-data:
+  directus-uploads:
+  directus-extensions:
+
 services:
+  postgres:
+    image: postgres:16-alpine
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+
   directus:
-    image: directus/directus:latest
+    image: directus/directus:11.6.1
     ports:
-      - "8055:8055"
+      - "${PORT:-8055}:8055"
     env_file:
       - .env
+    volumes:
+      - directus-uploads:/directus/uploads
+      - directus-extensions:/directus/extensions
+    depends_on:
+      - postgres
     restart: unless-stopped

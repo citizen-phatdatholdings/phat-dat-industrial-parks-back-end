@@ -2,4 +2,6 @@ node_modules
 .env
 .directus
 uploads
+directus-extensions
+backups
 .DS_Store
