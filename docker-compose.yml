@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
 
   directus:
-    image: directus/directus:11.6.1
+    image: directus/directus:11.17.4
     ports:
       - "${PORT:-8055}:8055"
     env_file:
