@@ -2,6 +2,7 @@ volumes:
   postgres-data:
   directus-uploads:
   directus-extensions:
+  redis-data:
 
 services:
   postgres:
@@ -32,4 +33,5 @@ services:
       - ./mail_templates:/directus/mail_templates
     depends_on:
       - postgres
+      - redis
     restart: unless-stopped
