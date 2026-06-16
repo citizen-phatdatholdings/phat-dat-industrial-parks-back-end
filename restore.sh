@@ -110,8 +110,36 @@ if [ -f "$TEMP_DIR/.env" ]; then
   fi
 fi
 
+# Re-load env variables after restoration to ensure correct DB credentials
+if [ -f .env ]; then
+  while IFS= read -r line || [ -n "$line" ]; do
+    [[ "$line" =~ ^#.*$ ]] && continue
+    [[ -z "$line" ]] && continue
+    export "$line"
+  done < .env
+fi
+
 echo "==> Stopping Directus service..."
-docker compose stop directus
+docker compose stop directus 2>/dev/null || true
+
+# Ensure postgres is running and ready (vital for new VPS setup)
+if ! docker compose ps postgres | grep -q "Up" 2>/dev/null; then
+  echo "==> Postgres is not running. Starting Postgres container..."
+  docker compose up -d postgres
+fi
+
+echo "==> Waiting for Postgres database to be ready..."
+for i in {1..30}; do
+  if docker compose exec -T postgres pg_isready -U "${DB_USER:-directus}" &>/dev/null; then
+    echo "==> Postgres is ready."
+    break
+  fi
+  if [ $i -eq 30 ]; then
+    echo "==> [Error] Postgres did not become ready in time."
+    exit 1
+  fi
+  sleep 1
+done
 
 echo "==> Dropping and recreating public database schema..."
 docker compose exec -T postgres psql -U "${DB_USER:-directus}" -d "${DB_DATABASE:-directus}" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"

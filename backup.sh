@@ -41,9 +41,16 @@ if ! docker compose run --rm -v directus-extensions:/data -v "$(pwd)/$TEMP_DIR:/
   tar -czf "$TEMP_DIR/extensions.tar.gz" -T /dev/null
 fi
 
-echo "==> Copying configuration files..."
+echo "==> Copying project scripts and configurations..."
 [ -f .env ] && cp .env "$TEMP_DIR/.env"
 [ -f docker-compose.yml ] && cp docker-compose.yml "$TEMP_DIR/docker-compose.yml"
+[ -f Dockerfile ] && cp Dockerfile "$TEMP_DIR/Dockerfile"
+[ -f .dockerignore ] && cp .dockerignore "$TEMP_DIR/.dockerignore"
+[ -f .gitignore ] && cp .gitignore "$TEMP_DIR/.gitignore"
+[ -f package.json ] && cp package.json "$TEMP_DIR/package.json"
+[ -f backup.sh ] && cp backup.sh "$TEMP_DIR/backup.sh"
+[ -f restore.sh ] && cp restore.sh "$TEMP_DIR/restore.sh"
+[ -f setup-backup.sh ] && cp setup-backup.sh "$TEMP_DIR/setup-backup.sh"
 if [ -d mail_templates ]; then
   cp -r mail_templates "$TEMP_DIR/mail_templates"
 fi
